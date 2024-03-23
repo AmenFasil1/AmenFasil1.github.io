@@ -1,73 +1,60 @@
-var hostStatementText = "Host: test.mosquitto.org";
-var portStatementText = "Port: 8081";
+// Initialize MQTT client
+var hostname = "test.mosquitto.org"; // Replace with the actual MQTT broker you're using (e.g., EMQX)
+var port = 8081; // Replace with the correct port if needed
+var client = new Paho.MQTT.Client(hostname, port, "clientId"); // clientId should be unique 
 
-// Set host and port statements directly
+// Set callback handlers
+client.onConnectionLost = onConnectionLost;
+client.onMessageArrived = onMessageArrived;
+
+// Connection state flag
+var connected = false; 
+
+// Display host and port (dynamically)
 var hostStatement = document.createElement("p");
-hostStatement.textContent = hostStatementText;
+hostStatement.id = "hostStatement"; // Added an ID 
+hostStatement.textContent = "Connecting to Host: " + hostname; 
 var portStatement = document.createElement("p");
-portStatement.textContent = portStatementText;
+portStatement.id = "portStatement"; // Added an ID
+portStatement.textContent = "Connecting to Port: " + port;
 
-// map
-var map;
-
-map = L.map('map').setView([51.0447, -114.0719], 13); 
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-}).addTo(map);
-
-// Append host and port statements to the connection div
 var connectionDiv = document.getElementById("connection");
 if (connectionDiv) {
     connectionDiv.appendChild(hostStatement);
     connectionDiv.appendChild(portStatement);
 }
 
-// Initialize MQTT client
-var hostname = "test.mosquitto.org";
-var port = 8081;
-var client = new Paho.MQTT.Client(hostname, port, "clientId");
-
-// Set callback handlers
-client.onConnectionLost = onConnectionLost;
-client.onMessageArrived = onMessageArrived;
-
-var connected = false;
 
 function connect() {
     if (!connected) {
         client.connect({
             onSuccess: onConnect,
             onFailure: onFailure,
-            useSSL: true
+            useSSL: true // Ensure this matches your MQTT broker settings
         });
     }
 }
 
 function onConnect() {
     console.log("Connected to MQTT broker");
-    var status = document.querySelector("#connection p#status");
-    if (status) {
-        status.textContent = "Connected";
-    }
+    document.getElementById("status").textContent = "Connected";
+    document.getElementById("hostStatement").style.display = "none"; 
+    document.getElementById("portStatement").style.display = "none"; 
     connected = true;
 }
 
 function onFailure() {
     console.log("Failed to connect to MQTT broker");
-    var status = document.querySelector("#connection p#status");
-    if (status) {
-        status.textContent = "Failed to connect";
-    }
+    document.getElementById("status").textContent = "Failed to connect";
 }
 
 function disconnect() {
     if (connected) {
         client.disconnect();
         console.log("Disconnected from MQTT broker");
-        var status = document.querySelector("#connection p#status");
-        if (status) {
-            status.textContent = "Disconnected";
-        }
+        document.getElementById("status").textContent = "Disconnected";
+        document.getElementById("hostStatement").style.display = "block"; 
+        document.getElementById("portStatement").style.display = "block"; 
         connected = false;
     }
 }
@@ -100,7 +87,7 @@ function sendLocation(position) {
         "type": "Feature",
         "geometry": {
             "type": "Point",
-            "coordinates": [longitude, latitude] 
+            "coordinates": [longitude, latitude] // Longitude first!
         },
         "properties": {
             "temperature": temperature
@@ -108,15 +95,13 @@ function sendLocation(position) {
     };
 
     const geoJSONString = JSON.stringify(geoJSONObject);
-    publishMessage("topic35/pjt551", geoJSONString);
+    publishMessage("topic35/pjt551", geoJSONString); // Replace with your actual topic
 }
 
 function handleLocationError(error) {
     console.error("Error getting location:", error);
-    // Maybe display an error message to the user here
 }
 
-// Other functions remain unchanged
 function onConnectionLost(responseObject) {
     if (responseObject.errorCode !== 0) {
         console.log("Connection lost: " + responseObject.errorMessage);
