@@ -1,7 +1,7 @@
 // Initialize MQTT client
-var hostname = "test.mosquitto.org"; // Replace with the actual MQTT broker you're using (e.g., EMQX)
-var port = 8081; // Replace with the correct port if needed
-var client = new Paho.MQTT.Client(hostname, port, "clientId"); // clientId should be unique 
+var hostname = "test.mosquitto.org"; 
+var port = 8081; 
+var client = new Paho.MQTT.Client(hostname, port, "clientId");
 
 // Set callback handlers
 client.onConnectionLost = onConnectionLost;
@@ -34,6 +34,11 @@ function connect() {
         });
     }
 }
+
+var map = L.map('map').setView([51.0447, -114.0719], 13); 
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+}).addTo(map);
 
 function onConnect() {
     console.log("Connected to MQTT broker");
