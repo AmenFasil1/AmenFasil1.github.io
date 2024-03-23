@@ -135,6 +135,14 @@ function onMessageArrived(message) {
     // Center the map to the new location (optional for continuous updates)
     map.setView([latitude, longitude]); 
 }
+// Define onConnectionLost function
+function onConnectionLost(responseObject) {
+    if (responseObject.errorCode !== 0) {
+        console.log("Connection lost: " + responseObject.errorMessage);
+        document.getElementById("status").innerHTML = "Connection lost: " + responseObject.errorMessage;
+    }
+    // Handle reconnection here if needed
+}
 
 // Add event listeners to buttons
 document.getElementById("start").addEventListener("click", connect);
