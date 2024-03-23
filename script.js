@@ -1,7 +1,12 @@
+document.addEventListener("DOMContentLoaded", function() {
+    // Display the initial MQTT broker host and port
+    document.getElementById("hostStatement").textContent = "Connecting to Host: test.mosquitto.org";
+    document.getElementById("portStatement").textContent = "Connecting to Port: 8081";
+});
+
 // Initialize MQTT client
 var hostname = "test.mosquitto.org";
 var port = 8081; 
-console.log("Connecting to: " + hostname + ":" + port);
 var client = new Paho.MQTT.Client(hostname, port, "clientId");
 
 // Set callback handlers
@@ -10,15 +15,10 @@ client.onMessageArrived = onMessageArrived;
 
 var map;
 
-// Update display elements (before connecting) 
-document.getElementById("hostStatement").textContent = "Connecting to Host: " + hostname;
-document.getElementById("portStatement").textContent = "Connecting to Port: " + port;
-
 function connect() {
-    var hostname = document.getElementById("host").value; // Or get the values if you're not using input elements
-    var port = Number(document.getElementById("port").value);
-
-
+    // Hide the display of host and port
+    document.getElementById("hostStatement").style.display = "none";
+    document.getElementById("portStatement").style.display = "none";
 
     client.connect({
         onSuccess: onConnect,
@@ -26,7 +26,6 @@ function connect() {
         useSSL: true 
     });
 }
-
 
 // connection fail
 function onFailure() {
@@ -42,9 +41,6 @@ function disconnect() {
     document.getElementById("start").disabled = false;
     document.getElementById("host").disabled = false; 
     document.getElementById("port").disabled = false; 
-
-    document.getElementById("hostStatement").style.display = "block"; // Or your preferred display style 
-    document.getElementById("portStatement").style.display = "block"; 
 }
 
 // Publish a message to the specified topic
@@ -91,7 +87,6 @@ function handleLocationError(error) {
     // Maybe display an error message to the user here
 }
 
-
 map = L.map('map').setView([51.0447, -114.0719], 13); 
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -106,7 +101,6 @@ function generateRandomTemperature() {
     randomTemperature = Math.round(randomTemperature * 100) / 100;
     return randomTemperature;
 }
-
 
 // Modified publishMessage to take a specific topic 
 function publishMessage(topic, message) {
@@ -157,6 +151,7 @@ function onMessageArrived(message) {
     // Center the map to the new location (optional for continuous updates)
     map.setView([latitude, longitude]); 
 }
+
 // Define onConnectionLost function
 function onConnectionLost(responseObject) {
     if (responseObject.errorCode !== 0) {
@@ -174,3 +169,4 @@ document.getElementById("start").addEventListener("click", connect);
 document.getElementById("end").addEventListener("click", disconnect);
 document.getElementById("publishBtn").addEventListener("click", publishMessage);
 document.getElementById("shareBtn").addEventListener("click", shareStatus);
+
