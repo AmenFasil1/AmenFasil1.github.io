@@ -109,6 +109,56 @@ function handleLocationError(error) {
 }
 
 // Other functions remain unchanged
+function onConnectionLost(responseObject) {
+    if (responseObject.errorCode !== 0) {
+        console.log("Connection lost: " + responseObject.errorMessage);
+        var status = document.querySelector("#connection p#status");
+        if (status) {
+            status.textContent = "Connection lost: " + responseObject.errorMessage;
+        }
+
+        // Automatically attempt to reconnect
+        connect();
+    }
+}
+
+function onMessageArrived(message) {
+    console.log("Message arrived on topic: " + message.destinationName);
+    console.log("Message: " + message.payloadString);
+
+    const geoJSONData = JSON.parse(message.payloadString);
+
+    // Access the coordinates and temperature
+    const latitude = geoJSONData.geometry.coordinates[1]; 
+    const longitude = geoJSONData.geometry.coordinates[0];
+    const temperature = geoJSONData.properties.temperature; 
+
+    let marker; // Declare marker outside to access later
+    if (marker) {
+        // Marker exists, update position
+        marker.setLatLng([latitude, longitude]); 
+    } else {
+        // Create a new marker
+        marker = L.marker([latitude, longitude]).addTo(map); 
+    }
+
+    // Bind popup to show temperature
+    marker.bindPopup("Temperature: " + temperature); 
+
+    // Center the map to the new location (optional for continuous updates)
+    map.setView([latitude, longitude]); 
+}
+
+function generateRandomTemperature() {
+    // Generate a random temperature between -40 and 60 degrees Celsius
+    var minTemperature = -40;
+    var maxTemperature = 60;
+    var randomTemperature = Math.random() * (maxTemperature - minTemperature) + minTemperature;
+    // Round the temperature to two decimal places
+    randomTemperature = Math.round(randomTemperature * 100) / 100;
+    return randomTemperature;
+}
+
 
 // Add event listeners to buttons
 document.getElementById("start").addEventListener("click", connect);
