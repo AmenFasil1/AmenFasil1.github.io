@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", function() {
     // Display the initial MQTT broker host and port
-    var hostStatement = document.querySelector("#connection label[for='host']");
-    var portStatement = document.querySelector("#connection label[for='port']");
+    var hostStatement = test.mosquitto.org;
+    var portStatement = 8081;
 
     if (hostStatement && portStatement) {
         hostStatement.textContent = "Host:";
