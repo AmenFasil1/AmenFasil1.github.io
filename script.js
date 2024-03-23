@@ -7,6 +7,14 @@ hostStatement.textContent = hostStatementText;
 var portStatement = document.createElement("p");
 portStatement.textContent = portStatementText;
 
+// map
+var map;
+
+map = L.map('map').setView([51.0447, -114.0719], 13); 
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+}).addTo(map);
+
 // Append host and port statements to the connection div
 var connectionDiv = document.getElementById("connection");
 if (connectionDiv) {
