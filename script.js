@@ -10,13 +10,15 @@ client.onMessageArrived = onMessageArrived;
 
 var map;
 
+// Update display elements (before connecting) 
+document.getElementById("hostStatement").textContent = "Connecting to Host: " + hostname;
+document.getElementById("portStatement").textContent = "Connecting to Port: " + port;
+
 function connect() {
     var hostname = document.getElementById("host").value; // Or get the values if you're not using input elements
     var port = Number(document.getElementById("port").value);
 
-    // Update display elements (before connecting) 
-    document.getElementById("hostStatement").textContent = "Connecting to Host: " + hostname;
-    document.getElementById("portStatement").textContent = "Connecting to Port: " + port;
+
 
     client.connect({
         onSuccess: onConnect,
