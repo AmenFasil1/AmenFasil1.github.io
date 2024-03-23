@@ -1,13 +1,18 @@
-document.addEventListener("DOMContentLoaded", function() {
-    // Display the initial MQTT broker host and port
-    var hostStatement = test.mosquitto.org;
-    var portStatement = 8081;
+var hostStatementText = "Host: test.mosquitto.org";
+var portStatementText = "Port: 8081";
 
-    if (hostStatement && portStatement) {
-        hostStatement.textContent = "Host:";
-        portStatement.textContent = "Port:";
-    }
-});
+// Set host and port statements directly
+var hostStatement = document.createElement("p");
+hostStatement.textContent = hostStatementText;
+var portStatement = document.createElement("p");
+portStatement.textContent = portStatementText;
+
+// Append host and port statements to the connection div
+var connectionDiv = document.getElementById("connection");
+if (connectionDiv) {
+    connectionDiv.appendChild(hostStatement);
+    connectionDiv.appendChild(portStatement);
+}
 
 // Initialize MQTT client
 var hostname = "test.mosquitto.org";
