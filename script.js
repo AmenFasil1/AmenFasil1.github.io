@@ -152,7 +152,6 @@ function onMessageArrived(message) {
     map.setView([latitude, longitude]); 
 }
 
-// Define onConnectionLost function
 function onConnectionLost(responseObject) {
     if (responseObject.errorCode !== 0) {
         console.log("Connection lost: " + responseObject.errorMessage);
@@ -160,8 +159,10 @@ function onConnectionLost(responseObject) {
         document.getElementById("start").disabled = false;
         document.getElementById("host").disabled = false; 
         document.getElementById("port").disabled = false; 
+
+        // Automatically attempt to reconnect
+        connect();
     }
-    // Handle reconnection here if needed
 }
 
 // Add event listeners to buttons
@@ -169,4 +170,3 @@ document.getElementById("start").addEventListener("click", connect);
 document.getElementById("end").addEventListener("click", disconnect);
 document.getElementById("publishBtn").addEventListener("click", publishMessage);
 document.getElementById("shareBtn").addEventListener("click", shareStatus);
-
