@@ -17,7 +17,7 @@ function connect() {
         client.connect({ 
             onSuccess: onConnect,
             onFailure: onFailure,
-            useSSL: false
+            useSSL: true
         });
     }
 }
