@@ -33,16 +33,17 @@ function onFailure() {
     document.getElementById("status").innerHTML = "Failed to connect";
 }
 
-// Disconnect from MQTT broker
 function disconnect() {
     client.disconnect();
     console.log("Disconnected from MQTT broker");
     document.getElementById("status").innerHTML = "Disconnected";
     document.getElementById("start").disabled = false;
+    document.getElementById("end").disabled = true; // Disable the end button
     document.getElementById("host").disabled = false; 
     document.getElementById("port").disabled = false; 
+    document.getElementById("hostStatement").style.display = "block"; // Show host statement
+    document.getElementById("portStatement").style.display = "block"; // Show port statement
 }
-
 // Publish a message to the specified topic
 function publishMessage() {
     var topic = document.getElementById("topic").value;
