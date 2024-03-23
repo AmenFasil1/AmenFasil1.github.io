@@ -1,6 +1,6 @@
 // Initialize MQTT client
 var hostname = "test.mosquitto.org";
-var port = 8080; 
+var port = 8081; 
 console.log("Connecting to: " + hostname + ":" + port);
 var client = new Paho.MQTT.Client(hostname, port, "clientId");
 
@@ -17,7 +17,6 @@ function connect() {
         client.connect({ 
             onSuccess: onConnect,
             onFailure: onFailure,
-            useSSL: true 
         });
     }
 }
