@@ -82,7 +82,6 @@ function publishMessage() {
     console.log("Published message: " + message + " to topic: " + topic);
 }
 
-// Share status
 function shareStatus() {
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(sendLocation, handleLocationError);
@@ -100,7 +99,7 @@ function sendLocation(position) {
         "type": "Feature",
         "geometry": {
             "type": "Point",
-            "coordinates": [longitude, latitude] // Longitude first!
+            "coordinates": [longitude, latitude]
         },
         "properties": {
             "temperature": temperature
@@ -108,8 +107,13 @@ function sendLocation(position) {
     };
 
     const geoJSONString = JSON.stringify(geoJSONObject);
-    publishMessage("topic35/pjt551", geoJSONString); // Replace with your actual topic
+
+    // Get the topic from the existing topic input field
+    const topic = document.getElementById("topic").value; 
+
+    publishMessage(topic, geoJSONString); 
 }
+
 
 function handleLocationError(error) {
     console.error("Error getting location:", error);
