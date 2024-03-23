@@ -5,6 +5,8 @@ var client = new Paho.MQTT.Client("test.mosquitto.org", Number(8080), "clientId"
 client.onConnectionLost = onConnectionLost;
 client.onMessageArrived = onMessageArrived;
 
+var map;
+
 function connect() {
     var host = document.getElementById("host").value;
     var port = Number(document.getElementById("port").value);
@@ -15,11 +17,7 @@ function connect() {
     });
 }
 
-// connection successful
-function onConnect() {
-    console.log("Connected to MQTT broker");
-    document.getElementById("status").innerHTML = "Connected";
-}
+
 
 // connection fail
 function onFailure() {
@@ -78,6 +76,12 @@ function handleLocationError(error) {
     // Maybe display an error message to the user here
 }
 
+
+map = L.map('map').setView([51.0447, -114.0719], 13); 
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+}).addTo(map);
+
 function generateRandomTemperature() {
     // Generate a random temperature between -40 and 60 degrees Celsius
     var minTemperature = -40;
@@ -103,12 +107,6 @@ function onConnect() {
 
     // Subscribe to your topic
     client.subscribe("topic35/pjt551"); 
-
-    // Initialize Leaflet map 
-    var map = L.map('map').setView([51.0447, -114.0719], 13); 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(map);
 }
 
 function onMessageArrived(message) {
