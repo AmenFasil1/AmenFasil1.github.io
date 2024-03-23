@@ -13,15 +13,14 @@ var map;
 function connect() {
     var host = document.getElementById("host").value;
     var port = Number(document.getElementById("port").value);
-    client.connect({
-        onSuccess: onConnect,
-        onFailure: onFailure,
-        useSSL: true
-    });
+    if (!client.isConnected()) {  // Assuming isConnected() exists
+        client.connect({ 
+            onSuccess: onConnect,
+            onFailure: onFailure,
+            useSSL: true 
+        });
+    }
 }
-
-
-
 
 // connection fail
 function onFailure() {
@@ -34,6 +33,7 @@ function disconnect() {
     client.disconnect();
     console.log("Disconnected from MQTT broker");
     document.getElementById("status").innerHTML = "Disconnected";
+    document.getElementById("start").disabled = false; 
 }
 
 // Publish a message to the specified topic
@@ -108,6 +108,7 @@ function publishMessage(topic, message) {
 function onConnect() {
     console.log("Connected to MQTT broker");
     document.getElementById("status").innerHTML = "Connected";
+    document.getElementById("start").disabled = true; 
 
     // Subscribe to your topic
     client.subscribe("topic35/pjt551"); 
@@ -144,6 +145,7 @@ function onConnectionLost(responseObject) {
     if (responseObject.errorCode !== 0) {
         console.log("Connection lost: " + responseObject.errorMessage);
         document.getElementById("status").innerHTML = "Connection lost: " + responseObject.errorMessage;
+        document.getElementById("start").disabled = false; 
     }
     // Handle reconnection here if needed
 }
