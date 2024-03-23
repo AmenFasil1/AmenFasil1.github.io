@@ -1,6 +1,6 @@
 // Initialize MQTT client
-var hostname = "test.mosquitto.org"; 
-var port = 8081; 
+var hostname = "broker.emqx.io"; 
+var port = 8084; 
 var client = new Paho.MQTT.Client(hostname, port, "clientId");
 
 // Set callback handlers
@@ -35,10 +35,18 @@ function connect() {
     }
 }
 
-var map = L.map('map').setView([51.0447, -114.0719], 13); 
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-}).addTo(map);
+// Map initialization function
+function initMap() {
+    var map = L.map('map').setView([51.0447, -114.0719], 13); 
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+}
+
+// Call the map initialization function when the DOM content is loaded
+document.addEventListener("DOMContentLoaded", function() {
+    initMap();
+});
 
 function onConnect() {
     console.log("Connected to MQTT broker");
