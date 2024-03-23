@@ -1,5 +1,8 @@
 // Initialize MQTT client
-var client = new Paho.MQTT.Client("wss://test.mosquitto.org", Number(8080), "clientId");
+var hostname = "test.mosquitto.org";
+var port = 8081; 
+console.log("Connecting to: " + hostname + ":" + port); // Check the output
+var client = new Paho.MQTT.Client(hostname, port, "clientId");
 
 // Set callback handlers
 client.onConnectionLost = onConnectionLost;
