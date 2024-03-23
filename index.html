@@ -11,13 +11,13 @@
     <div class="container">
         <h1>Geoweb Application</h1>
         <div id="connection">
-            <label for="host">MQTTXXX Host:</label>
-            <input type="text" id="host" placeholder="test.mosquitto.org">
-            <label for="port">MQTT Port:</label>
-            <input type="text" id="port" placeholder="8080">
-            <button id="start">Start Connection</button>
-            <button id="end">End Connection</button>
-            <p id="status"></p>
+            <div id="connection">
+                <p id="hostStatement"></p> 
+                <p id="portStatement"></p> </div>
+                <button id="start">Start Connection</button>
+                <button id="end">End Connection</button>
+                <p id="status"></p>
+            </div>            
         </div>
         <div id="publish">
             <label for="topic">Topic:</label>

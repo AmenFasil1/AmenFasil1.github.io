@@ -31,3 +31,9 @@ input, button {
     height: 400px;
     margin-top: 20px;
 }
+
+input[disabled] {
+    background-color: #eee; /* Light grey background */
+    opacity: 0.6;          /* Slightly faded */
+    cursor: not-allowed;   /* Change the cursor */
+}
