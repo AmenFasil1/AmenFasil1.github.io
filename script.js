@@ -5,7 +5,6 @@ var client = new Paho.MQTT.Client("test.mosquitto.org", Number(8080), "clientId"
 client.onConnectionLost = onConnectionLost;
 client.onMessageArrived = onMessageArrived;
 
-// Connect to MQTT broker
 function connect() {
     var host = document.getElementById("host").value;
     var port = Number(document.getElementById("port").value);
@@ -16,13 +15,13 @@ function connect() {
     });
 }
 
-// Called when the connection is successful
+// connection successful
 function onConnect() {
     console.log("Connected to MQTT broker");
     document.getElementById("status").innerHTML = "Connected";
 }
 
-// Called when the connection fails
+// connection fail
 function onFailure() {
     console.log("Failed to connect to MQTT broker");
     document.getElementById("status").innerHTML = "Failed to connect";
@@ -47,8 +46,96 @@ function publishMessage() {
 
 // Share status
 function shareStatus() {
-    // Implement your functionality here
-    console.log("Status shared");
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(sendLocation, handleLocationError);
+    } else {
+        console.error("Geolocation is not supported by this browser.");
+    }
+}
+
+function sendLocation(position) {
+    const latitude = position.coords.latitude;
+    const longitude = position.coords.longitude;
+    const temperature = generateRandomTemperature(); 
+
+    const geoJSONObject = {
+        "type": "Feature",
+        "geometry": {
+            "type": "Point",
+            "coordinates": [longitude, latitude] 
+        },
+        "properties": {
+            "temperature": temperature
+        }
+    };
+
+    const geoJSONString = JSON.stringify(geoJSONObject);
+    publishMessage("topic35/pjt551", geoJSONString);
+}
+
+function handleLocationError(error) {
+    console.error("Error getting location:", error);
+    // Maybe display an error message to the user here
+}
+
+function generateRandomTemperature() {
+    // Generate a random temperature between -40 and 60 degrees Celsius
+    var minTemperature = -40;
+    var maxTemperature = 60;
+    var randomTemperature = Math.random() * (maxTemperature - minTemperature) + minTemperature;
+    // Round the temperature to two decimal places
+    randomTemperature = Math.round(randomTemperature * 100) / 100;
+    return randomTemperature;
+}
+
+
+// Modified publishMessage to take a specific topic 
+function publishMessage(topic, message) {
+    var messageObj = new Paho.MQTT.Message(message);
+    messageObj.destinationName = topic;
+    client.send(messageObj);
+    console.log("Published message: " + message + " to topic: " + topic);
+}
+
+function onConnect() {
+    console.log("Connected to MQTT broker");
+    document.getElementById("status").innerHTML = "Connected";
+
+    // Subscribe to your topic
+    client.subscribe("topic35/pjt551"); 
+
+    // Initialize Leaflet map 
+    var map = L.map('map').setView([51.0447, -114.0719], 13); 
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+}
+
+function onMessageArrived(message) {
+    console.log("Message arrived on topic: " + message.destinationName);
+    console.log("Message: " + message.payloadString);
+
+    const geoJSONData = JSON.parse(message.payloadString);
+
+    // Access the coordinates and temperature
+    const latitude = geoJSONData.geometry.coordinates[1]; 
+    const longitude = geoJSONData.geometry.coordinates[0];
+    const temperature = geoJSONData.properties.temperature; 
+
+    let marker; // Declare marker outside to access later
+    if (marker) {
+        // Marker exists, update position
+        marker.setLatLng([latitude, longitude]); 
+    } else {
+        // Create a new marker
+        marker = L.marker([latitude, longitude]).addTo(map); 
+    }
+
+    // Bind popup to show temperature
+    marker.bindPopup("Temperature: " + temperature); 
+
+    // Center the map to the new location (optional for continuous updates)
+    map.setView([latitude, longitude]); 
 }
 
 // Add event listeners to buttons
