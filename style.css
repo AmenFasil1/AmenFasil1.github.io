@@ -33,7 +33,31 @@ input, button {
 }
 
 input[disabled] {
-    background-color: #eee; /* Light grey background */
-    opacity: 0.6;          /* Slightly faded */
-    cursor: not-allowed;   /* Change the cursor */
+    background-color: #eee; 
+    opacity: 0.6;          
+    cursor: not-allowed; 
 }
+
+temperature-marker .marker-pin {
+    width: 30px;
+    height: 30px;
+    margin-left: -15px;
+    margin-top: -30px;
+    border-radius: 50% 50% 50% 0;
+    background: blue;   
+    position: absolute;
+}
+
+.temperature-marker .marker-pin::after {
+    content: '';
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    margin-left: 10px;
+    margin-top: 10px; 
+    background-color: white; 
+    border-radius: 50%;
+}
+
+.temperature-marker.green .marker-pin { background: green; }
+.temperature-marker.red .marker-pin { background: red; } 

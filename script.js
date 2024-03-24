@@ -1,14 +1,18 @@
 // Initialize MQTT client
 var hostname = "broker.emqx.io"; 
 var port = 8084; 
-var client = new Paho.MQTT.Client(hostname, port, "clientId");
+var client = new Paho.MQTT.Client(hostname, port, "client-" + Math.round(Math.random(100000000, 1000000000)*1000000000));
 
 // Set callback handlers
 client.onConnectionLost = onConnectionLost;
-client.onMessageArrived = onMessageArrived;
 
 // Connection state flag
 var connected = false; 
+
+// initalize map and marker
+var map;
+var marker;
+
 
 // Display host and port (dynamically)
 var hostStatement = document.createElement("p");
@@ -24,29 +28,26 @@ if (connectionDiv) {
     connectionDiv.appendChild(portStatement);
 }
 
+document.getElementById("shareBtn").addEventListener("click", shareStatus);
 
 function connect() {
     if (!connected) {
         client.connect({
             onSuccess: onConnect,
             onFailure: onFailure,
-            useSSL: true // Ensure this matches your MQTT broker settings
+            useSSL: true 
         });
+    } else {
+        console.log("Already connected to MQTT broker");
     }
 }
 
-// Map initialization function
-function initMap() {
-    var map = L.map('map').setView([51.0447, -114.0719], 13); 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(map);
-}
+var map = L.map('map').setView([51.0447, -114.0719], 13); 
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+}).addTo(map);
 
 // Call the map initialization function when the DOM content is loaded
-document.addEventListener("DOMContentLoaded", function() {
-    initMap();
-});
 
 function onConnect() {
     console.log("Connected to MQTT broker");
@@ -82,6 +83,14 @@ function publishMessage() {
     console.log("Published message: " + message + " to topic: " + topic);
 }
 
+// Publish a message to the specified topic
+function publishGeoMessage(topic, message) {
+    var messageObj = new Paho.MQTT.Message(message);
+    messageObj.destinationName = topic;
+    client.send(messageObj);
+    console.log("Published message: " + message + " to topic: " + topic);
+}
+
 function shareStatus() {
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(sendLocation, handleLocationError);
@@ -111,8 +120,71 @@ function sendLocation(position) {
     // Get the topic from the existing topic input field
     const topic = document.getElementById("topic").value; 
 
-    publishMessage(topic, geoJSONString); 
+    publishGeoMessage(topic, geoJSONString); 
+    
+    // Debugging statements:
+    console.log("Geolocation retrieved:", position);
+    console.log("GeoJSON message:", geoJSONString);
+    console.log("Published to topic:", topic);
 }
+
+function showTemperature(latitude, longitude) {
+    const topic = "engo551/amenfasil/my_temperature";
+    client.subscribe(topic);
+    
+    // Callback function for when a message is received
+    client.onMessageArrived = function(message) {
+        const temperature = parseFloat(message.payloadString);
+        let iconColor;
+
+        // Change icon color based on temperature range
+        if (temperature < 10) {
+            iconColor = 'blue';
+        } else if (temperature < 30) {
+            iconColor = 'green';
+        } else {
+            iconColor = 'red';
+        }
+
+        // Create a Leaflet marker with custom icon
+        const customIcon = L.icon({
+            iconUrl: `http://maps.google.com/mapfiles/ms/icons/${iconColor}-dot.png`,
+            iconSize: [32, 32],
+            iconAnchor: [16, 32]
+        });
+        const marker = L.marker([latitude, longitude], { icon: customIcon }).addTo(map);
+
+        // Bind popup to show temperature
+        marker.bindPopup(`Temperature: ${temperature}°C`).openPopup();
+    };
+}
+
+function showTemperature(latitude, longitude) {
+    const topic = "engo551/amenfasil/my_temperature";
+    client.subscribe(topic);
+    
+    const temperature = generateRandomTemperature();
+    let iconColor;
+
+    if (temperature < 10) {
+        iconColor = 'blue';
+    } else if (temperature < 30) {
+        iconColor = 'green';
+    } else {
+        iconColor = 'red';
+    }
+
+        // Create a Leaflet marker with custom icon
+        const customIcon = L.icon({
+            iconUrl: `http://maps.google.com/mapfiles/ms/icons/${iconColor}-dot.png`,
+            iconSize: [32, 32],
+            iconAnchor: [16, -10]
+        });
+        const marker = L.marker([latitude, longitude], { icon: customIcon }).addTo(map);
+
+        // Bind popup to show temperature
+        marker.bindPopup(`Temperature: ${temperature}°C`).openPopup();
+    };
 
 
 function handleLocationError(error) {
@@ -132,32 +204,7 @@ function onConnectionLost(responseObject) {
     }
 }
 
-function onMessageArrived(message) {
-    console.log("Message arrived on topic: " + message.destinationName);
-    console.log("Message: " + message.payloadString);
 
-    const geoJSONData = JSON.parse(message.payloadString);
-
-    // Access the coordinates and temperature
-    const latitude = geoJSONData.geometry.coordinates[1]; 
-    const longitude = geoJSONData.geometry.coordinates[0];
-    const temperature = geoJSONData.properties.temperature; 
-
-    let marker; // Declare marker outside to access later
-    if (marker) {
-        // Marker exists, update position
-        marker.setLatLng([latitude, longitude]); 
-    } else {
-        // Create a new marker
-        marker = L.marker([latitude, longitude]).addTo(map); 
-    }
-
-    // Bind popup to show temperature
-    marker.bindPopup("Temperature: " + temperature); 
-
-    // Center the map to the new location (optional for continuous updates)
-    map.setView([latitude, longitude]); 
-}
 
 function generateRandomTemperature() {
     // Generate a random temperature between -40 and 60 degrees Celsius
@@ -169,9 +216,34 @@ function generateRandomTemperature() {
     return randomTemperature;
 }
 
+// Function to show user location and temperature
+function showUserLocation() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+            const latitude = position.coords.latitude;
+            const longitude = position.coords.longitude;
 
-// Add event listeners to buttons
-document.getElementById("start").addEventListener("click", connect);
+            // Call showTemperature when location icon is clicked
+            const marker = L.marker([latitude, longitude]).addTo(map);
+            marker.on('click', function() {
+                showTemperature(latitude, longitude);
+            });
+
+            map.setView([latitude, longitude], 15); // Zoom in a bit
+        }, handleLocationError);
+    } else {
+        console.error("Geolocation is not supported by this browser.");
+    }
+}
+
+// Add event listener to start button to connect and show user location
+document.getElementById("start").addEventListener("click", function() {
+    connect();
+    showUserLocation();
+});
+
 document.getElementById("end").addEventListener("click", disconnect);
 document.getElementById("publishBtn").addEventListener("click", publishMessage);
 document.getElementById("shareBtn").addEventListener("click", shareStatus);
+
+
