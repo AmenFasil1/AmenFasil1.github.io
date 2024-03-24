@@ -1,27 +1,24 @@
 // Initialize MQTT client
 var hostname = "broker.emqx.io"; 
 var port = 8084; 
-var client = new Paho.MQTT.Client(hostname, port, "client-" + Math.round(Math.random(100000000, 1000000000)*1000000000));
+var client = new Paho.MQTT.Client(hostname, port, "client-" + Math.round(Math.random(100000000, 1000000000)*1000000000)); // doesnt work if i dont make unique clients??
 
-// Set callback handlers
 client.onConnectionLost = onConnectionLost;
-
-// Connection state flag
 var connected = false; 
 
-// initalize map and marker
 var map;
 var marker;
 
 
-// Display host and port (dynamically)
+// host and port
 var hostStatement = document.createElement("p");
-hostStatement.id = "hostStatement"; // Added an ID 
+hostStatement.id = "hostStatement"; 
 hostStatement.textContent = "Connecting to Host: " + hostname; 
 var portStatement = document.createElement("p");
-portStatement.id = "portStatement"; // Added an ID
+portStatement.id = "portStatement";
 portStatement.textContent = "Connecting to Port: " + port;
 
+// connect host and port (weird but it finally works)
 var connectionDiv = document.getElementById("connection");
 if (connectionDiv) {
     connectionDiv.appendChild(hostStatement);
@@ -30,6 +27,7 @@ if (connectionDiv) {
 
 document.getElementById("shareBtn").addEventListener("click", shareStatus);
 
+// connect to broker
 function connect() {
     if (!connected) {
         client.connect({
@@ -42,13 +40,13 @@ function connect() {
     }
 }
 
+// initialize map
 var map = L.map('map').setView([51.0447, -114.0719], 13); 
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 }).addTo(map);
 
-// Call the map initialization function when the DOM content is loaded
-
+// when connect, remove host and port
 function onConnect() {
     console.log("Connected to MQTT broker");
     document.getElementById("status").textContent = "Connected";
@@ -57,11 +55,13 @@ function onConnect() {
     connected = true;
 }
 
+// fail check (needed)
 function onFailure() {
     console.log("Failed to connect to MQTT broker");
     document.getElementById("status").textContent = "Failed to connect";
 }
 
+// disconnect from broker
 function disconnect() {
     if (connected) {
         client.disconnect();
@@ -83,13 +83,14 @@ function publishMessage() {
     console.log("Published message: " + message + " to topic: " + topic);
 }
 
-// Publish a message to the specified topic
+// Publish the geoJson message to the specific topic
 function publishGeoMessage(topic, message) {
     var messageObj = new Paho.MQTT.Message(message);
     messageObj.destinationName = topic;
     client.send(messageObj);
     console.log("Published message: " + message + " to topic: " + topic);
 }
+
 
 function shareStatus() {
     if (navigator.geolocation) {
@@ -148,7 +149,7 @@ function showTemperature(latitude, longitude) {
 
         // Create a Leaflet marker with custom icon
         const customIcon = L.icon({
-            iconUrl: `http://maps.google.com/mapfiles/ms/icons/${iconColor}-dot.png`,
+            iconUrl: `https://maps.google.com/mapfiles/ms/icons/${iconColor}-dot.png`,
             iconSize: [32, 32],
             iconAnchor: [16, 32]
         });
@@ -205,7 +206,7 @@ function onConnectionLost(responseObject) {
 }
 
 
-
+// Function to generate a random temperature
 function generateRandomTemperature() {
     // Generate a random temperature between -40 and 60 degrees Celsius
     var minTemperature = -40;
