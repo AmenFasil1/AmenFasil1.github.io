@@ -177,7 +177,7 @@ function showTemperature(latitude, longitude) {
 
         // Create a Leaflet marker with custom icon
         const customIcon = L.icon({
-            iconUrl: `http://maps.google.com/mapfiles/ms/icons/${iconColor}-dot.png`,
+            iconUrl: `https://maps.google.com/mapfiles/ms/icons/${iconColor}-dot.png`,
             iconSize: [32, 32],
             iconAnchor: [16, -10]
         });
